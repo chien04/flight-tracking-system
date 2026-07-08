@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: flight-simulator
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      compression-type: lz4
+      properties:
+        spring.json.add.type.headers: false
+        max.request.size: 5242880
+
+simulator:
+  scheduling-enabled: true
+  target-count: 10000
+  update-interval-ms: 300
+  kafka-topic: flight-target-updates
+  center-latitude: 21.0285
+  center-longitude: 105.8542
+  default-altitude: 1000

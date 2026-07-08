@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: flight-backend
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: flight-backend
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.example.flight.common.event
+        spring.json.value.default.type: com.example.flight.common.event.TargetUpdateBatchEvent
+        max.partition.fetch.bytes: 5242880
+        fetch.max.bytes: 10485760
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  datasource:
+    url: jdbc:postgresql://localhost:5432/flight_tracking
+    username: flight
+    password: flight
+
+flight:
+  kafka-consumer-enabled: true
+  history-enabled: true
+  kafka-topic: flight-target-updates
+  websocket-topic: /topic/targets/realtime
+  redis-current-state-key: target:current:all
+  history-ttl-days: 7
+  performance-target-cycle-ms: 300
+  clickhouse-url: jdbc:clickhouse://localhost:8123/flight_tracking
+  clickhouse-username: flight
+  clickhouse-password: flight
