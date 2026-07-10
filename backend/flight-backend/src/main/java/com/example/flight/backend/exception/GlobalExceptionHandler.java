@@ -1,6 +1,7 @@
 package com.example.flight.backend.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +24,14 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         return build(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ErrorResponse> handleDataAccess(
+            DataAccessException exception,
+            HttpServletRequest request
+    ) {
+        return build(HttpStatus.SERVICE_UNAVAILABLE, "Data store unavailable: " + exception.getMostSpecificCause().getMessage(), request);
     }
 
     private static ResponseEntity<ErrorResponse> build(

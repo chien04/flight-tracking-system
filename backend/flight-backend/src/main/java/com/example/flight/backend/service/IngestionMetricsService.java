@@ -13,6 +13,8 @@ public class IngestionMetricsService {
     private final AtomicInteger lastTargetCount = new AtomicInteger();
     private final AtomicLong lastBatchEventTimestamp = new AtomicLong();
     private final AtomicLong lastBatchReceivedAt = new AtomicLong();
+    private final AtomicLong lastBatchCompletedAt = new AtomicLong();
+    private final AtomicLong lastEndToEndMs = new AtomicLong();
     private final AtomicLong lastRedisWriteMs = new AtomicLong();
     private final AtomicLong lastClickHouseInsertMs = new AtomicLong();
     private final AtomicLong lastWebSocketPushMs = new AtomicLong();
@@ -20,6 +22,8 @@ public class IngestionMetricsService {
 
     public void recordBatch(
             long batchEventTimestamp,
+            long batchReceivedAt,
+            long batchCompletedAt,
             int targetCount,
             long redisWriteMs,
             long clickHouseInsertMs,
@@ -30,7 +34,9 @@ public class IngestionMetricsService {
         totalTargets.addAndGet(targetCount);
         lastTargetCount.set(targetCount);
         lastBatchEventTimestamp.set(batchEventTimestamp);
-        lastBatchReceivedAt.set(System.currentTimeMillis());
+        lastBatchReceivedAt.set(batchReceivedAt);
+        lastBatchCompletedAt.set(batchCompletedAt);
+        lastEndToEndMs.set(Math.max(0, batchCompletedAt - batchEventTimestamp));
         lastRedisWriteMs.set(redisWriteMs);
         lastClickHouseInsertMs.set(clickHouseInsertMs);
         lastWebSocketPushMs.set(webSocketPushMs);
@@ -38,8 +44,6 @@ public class IngestionMetricsService {
     }
 
     public IngestionMetricsResponse snapshot(long performanceTargetCycleMs) {
-        long eventTimestamp = lastBatchEventTimestamp.get();
-        long ageMs = eventTimestamp == 0 ? 0 : Math.max(0, System.currentTimeMillis() - eventTimestamp);
         long clickHouseMs = lastClickHouseInsertMs.get();
         int targetCount = lastTargetCount.get();
         double insertRate = clickHouseMs == 0
@@ -50,15 +54,16 @@ public class IngestionMetricsService {
                 totalBatches.get(),
                 totalTargets.get(),
                 targetCount,
-                eventTimestamp,
+                lastBatchEventTimestamp.get(),
                 lastBatchReceivedAt.get(),
-                ageMs,
+                lastBatchCompletedAt.get(),
+                lastEndToEndMs.get(),
                 lastRedisWriteMs.get(),
                 clickHouseMs,
                 lastWebSocketPushMs.get(),
                 lastTotalIngestMs.get(),
                 insertRate,
-                lastTotalIngestMs.get() <= performanceTargetCycleMs
+                lastEndToEndMs.get() <= performanceTargetCycleMs
         );
     }
 }

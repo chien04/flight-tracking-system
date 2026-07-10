@@ -39,7 +39,7 @@ export function TargetHistoryPanel({
           <p className="eyebrow">History</p>
           <h2>{targetId}</h2>
         </div>
-        <span className="history-count">{loading ? 'Loading' : `${points.length.toLocaleString()} pts`}</span>
+        <span className="history-count">{loading ? 'Loading' : `${points.length.toLocaleString()} points`}</span>
       </div>
 
       <div className="history-range" aria-label="History range">

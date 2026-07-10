@@ -8,6 +8,7 @@ public record TargetHistoryPointResponse(
         double longitude,
         double altitude,
         TargetClassification classification,
-        long timestamp
+        long timestamp,
+        long ingestedAt
 ) {
 }

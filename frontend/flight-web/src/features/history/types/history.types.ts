@@ -7,6 +7,7 @@ export interface TargetHistoryPoint {
   altitude: number;
   classification: TargetClassification;
   timestamp: number;
+  ingestedAt?: number;
 }
 
 export interface TargetHistoryQuery {

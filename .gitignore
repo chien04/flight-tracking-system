@@ -119,10 +119,10 @@ log/
 # Docker / local volumes / generated data
 docker-compose.override.yml
 docker-compose.*.override.yml
-volumes/
-data/
-tmp/
-temp/
+/volumes/
+/data/
+/tmp/
+/temp/
 
 # Database dumps and local storage
 *.dump
@@ -133,10 +133,10 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
-clickhouse/
-postgres/
-redis/
-kafka/
+/clickhouse/
+/postgres/
+/redis/
+/kafka/
 
 # Generated archives and large exports
 *.zip
@@ -147,19 +147,3 @@ kafka/
 *.rar
 exports/
 reports/
-
-AGENT.md
-AGENTS.md
-agent.md
-agents.md
-**/AGENT.md
-**/AGENTS.md
-**/agent.md
-**/agents.md
-CLAUDE.md
-claude.md
-**/CLAUDE.md
-**/claude.md
-
-ARCHITECTURE.md
-ROADMAP.md

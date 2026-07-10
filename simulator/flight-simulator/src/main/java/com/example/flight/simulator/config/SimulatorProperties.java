@@ -10,9 +10,11 @@ public class SimulatorProperties {
     private int targetCount = 10000;
     private long updateIntervalMs = 300;
     private String kafkaTopic = "flight-target-updates";
-    private double centerLatitude = 21.0285;
-    private double centerLongitude = 105.8542;
+    private double centerLatitude = 39.8283;
+    private double centerLongitude = -98.5795;
     private double defaultAltitude = 1000;
+    private double targetLatitudeSpanDegrees = 24;
+    private double targetLongitudeSpanDegrees = 58;
     private boolean schedulingEnabled = true;
 
     public int getTargetCount() {
@@ -61,6 +63,22 @@ public class SimulatorProperties {
 
     public void setDefaultAltitude(double defaultAltitude) {
         this.defaultAltitude = defaultAltitude;
+    }
+
+    public double getTargetLatitudeSpanDegrees() {
+        return targetLatitudeSpanDegrees;
+    }
+
+    public void setTargetLatitudeSpanDegrees(double targetLatitudeSpanDegrees) {
+        this.targetLatitudeSpanDegrees = targetLatitudeSpanDegrees;
+    }
+
+    public double getTargetLongitudeSpanDegrees() {
+        return targetLongitudeSpanDegrees;
+    }
+
+    public void setTargetLongitudeSpanDegrees(double targetLongitudeSpanDegrees) {
+        this.targetLongitudeSpanDegrees = targetLongitudeSpanDegrees;
     }
 
     public boolean isSchedulingEnabled() {

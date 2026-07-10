@@ -38,9 +38,11 @@ class TargetUpdateGeneratorTest {
     private static SimulatorProperties properties(int targetCount) {
         SimulatorProperties properties = new SimulatorProperties();
         properties.setTargetCount(targetCount);
-        properties.setCenterLatitude(21.0285);
-        properties.setCenterLongitude(105.8542);
+        properties.setCenterLatitude(39.8283);
+        properties.setCenterLongitude(-98.5795);
         properties.setDefaultAltitude(1000);
+        properties.setTargetLatitudeSpanDegrees(24);
+        properties.setTargetLongitudeSpanDegrees(58);
         return properties;
     }
 }

@@ -82,7 +82,8 @@ class TargetQueryControllerTest {
                         .param("sampleMs", "500"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].targetId").value("0001"))
-                .andExpect(jsonPath("$[0].timestamp").value(1000));
+                .andExpect(jsonPath("$[0].timestamp").value(1000))
+                .andExpect(jsonPath("$[0].ingestedAt").value(1100));
     }
 
     private static TargetCurrentResponse current(String targetId) {
@@ -100,7 +101,8 @@ class TargetQueryControllerTest {
                 105.8542,
                 1000,
                 TargetClassification.UNKNOWN,
-                timestamp
+                timestamp,
+                timestamp + 100
         );
     }
 }

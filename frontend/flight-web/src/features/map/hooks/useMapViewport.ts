@@ -10,9 +10,9 @@ export interface MapViewport {
 
 export function useMapViewport() {
   return useState<MapViewport>({
-    latitude: 21.0285,
-    longitude: 105.8542,
-    zoom: 10,
+    latitude: 39.8283,
+    longitude: -98.5795,
+    zoom: 4,
     pitch: 0,
     bearing: 0,
   });

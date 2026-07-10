@@ -16,6 +16,8 @@ simulator:
   target-count: 10000
   update-interval-ms: 300
   kafka-topic: flight-target-updates
-  center-latitude: 21.0285
-  center-longitude: 105.8542
+  center-latitude: 39.8283
+  center-longitude: -98.5795
   default-altitude: 1000
+  target-latitude-span-degrees: 24
+  target-longitude-span-degrees: 58

@@ -11,6 +11,7 @@ interface MapToolbarProps {
   targetCount: number;
   filter: TargetClassification | 'ALL';
   lastBatchAt: number | null;
+  lastRenderLatencyMs: number | null;
   socketConnected: boolean;
   loading: boolean;
   error: string | null;
@@ -22,6 +23,7 @@ export function MapToolbar({
   targetCount,
   filter,
   lastBatchAt,
+  lastRenderLatencyMs,
   socketConnected,
   loading,
   error,
@@ -49,6 +51,7 @@ export function MapToolbar({
           {socketConnected ? 'Live' : 'Offline'}
         </span>
         {lastBatchAt ? <span>{formatTime(lastBatchAt)}</span> : null}
+        {lastRenderLatencyMs !== null ? <span>Render {lastRenderLatencyMs} ms</span> : null}
         {loading ? <Loading /> : null}
         {error ? <ErrorMessage message={error} /> : null}
       </div>

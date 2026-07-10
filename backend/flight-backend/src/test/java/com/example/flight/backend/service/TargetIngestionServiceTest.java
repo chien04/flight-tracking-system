@@ -39,6 +39,8 @@ class TargetIngestionServiceTest {
         verify(targetRealtimePushService).pushBatch(batchEvent);
         verify(ingestionMetricsService).recordBatch(
                 org.mockito.Mockito.eq(batchEvent.timestamp()),
+                org.mockito.Mockito.anyLong(),
+                org.mockito.Mockito.anyLong(),
                 org.mockito.Mockito.eq(10000),
                 org.mockito.Mockito.anyLong(),
                 org.mockito.Mockito.anyLong(),

@@ -9,13 +9,16 @@ import com.example.flight.simulator.domain.SimulatedTarget;
 import com.example.flight.simulator.domain.TrajectoryState;
 import com.example.flight.simulator.domain.Waypoint;
 import com.example.flight.simulator.util.GeoUtil;
-import com.example.flight.simulator.util.RandomUtil;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SplittableRandom;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TargetFactory {
+
+    private static final long TARGET_RANDOM_SEED = 0x5EED_2026_0709L;
+    private static final long TARGET_RANDOM_STEP = 0x9E37_79B9_7F4A_7C15L;
 
     private final SimulatorProperties properties;
 
@@ -35,12 +38,13 @@ public class TargetFactory {
     }
 
     private SimulatedTarget createTarget(int index, long startTimeMillis) {
-        PositionDto origin = originFor(index);
-        double radiusMeters = 800 + (index % 40) * 35;
-        double speedMetersPerSecond = 180 + (index % 25) * 4;
-        double headingDegrees = (index * 37) % 360;
-        TrajectoryType trajectoryType = RandomUtil.cycle(TrajectoryType.values(), index);
-        TargetClassification classification = RandomUtil.cycle(TargetClassification.values(), index);
+        SplittableRandom random = randomFor(index);
+        PositionDto origin = originFor(random);
+        double radiusMeters = 800 + random.nextDouble(0, 1_600);
+        double speedMetersPerSecond = 160 + random.nextDouble(0, 140);
+        double headingDegrees = random.nextDouble(0, 360);
+        TrajectoryType trajectoryType = randomValue(TrajectoryType.values(), random);
+        TargetClassification classification = randomValue(TargetClassification.values(), random);
 
         return new SimulatedTarget(
                 TargetIdUtil.format(index),
@@ -51,21 +55,29 @@ public class TargetFactory {
                 speedMetersPerSecond,
                 headingDegrees,
                 waypointsFor(origin, radiusMeters, properties.getDefaultAltitude()),
-                new TrajectoryState(startTimeMillis, Math.toRadians(index % 360))
+                new TrajectoryState(startTimeMillis, random.nextDouble(0, Math.PI * 2))
         );
     }
 
-    private PositionDto originFor(int index) {
-        double ring = 1 + index / 360.0;
-        double angle = Math.toRadians(index % 360);
-        double northMeters = Math.cos(angle) * ring * 120;
-        double eastMeters = Math.sin(angle) * ring * 120;
-        PositionDto center = new PositionDto(
-                properties.getCenterLatitude(),
-                properties.getCenterLongitude(),
+    private static SplittableRandom randomFor(int index) {
+        return new SplittableRandom(TARGET_RANDOM_SEED + TARGET_RANDOM_STEP * index);
+    }
+
+    private PositionDto originFor(SplittableRandom random) {
+        double radiusRatio = Math.sqrt(random.nextDouble());
+        double angle = random.nextDouble(0, Math.PI * 2);
+        double latitudeOffset = Math.cos(angle) * radiusRatio * properties.getTargetLatitudeSpanDegrees() / 2;
+        double longitudeOffset = Math.sin(angle) * radiusRatio * properties.getTargetLongitudeSpanDegrees() / 2;
+
+        return new PositionDto(
+                properties.getCenterLatitude() + latitudeOffset,
+                properties.getCenterLongitude() + longitudeOffset,
                 properties.getDefaultAltitude()
         );
-        return GeoUtil.offset(center, northMeters, eastMeters, properties.getDefaultAltitude());
+    }
+
+    private static <T> T randomValue(T[] values, SplittableRandom random) {
+        return values[random.nextInt(values.length)];
     }
 
     private static List<Waypoint> waypointsFor(PositionDto origin, double radiusMeters, double altitude) {

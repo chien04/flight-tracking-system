@@ -33,6 +33,7 @@ public class TargetIngestionService {
 
     public int ingest(TargetUpdateBatchEvent batchEvent) {
         int targetCount = batchEvent.targets().size();
+        long receivedAt = System.currentTimeMillis();
         long totalStarted = System.nanoTime();
 
         long redisStarted = System.nanoTime();
@@ -40,7 +41,16 @@ public class TargetIngestionService {
         long redisMs = elapsedMillis(redisStarted);
 
         long historyStarted = System.nanoTime();
-        targetHistoryService.saveBatch(batchEvent);
+        try {
+            targetHistoryService.saveBatch(batchEvent);
+        } catch (RuntimeException exception) {
+            log.error(
+                    "Failed to persist target history: timestamp={}, targets={}",
+                    batchEvent.timestamp(),
+                    targetCount,
+                    exception
+            );
+        }
         long historyMs = elapsedMillis(historyStarted);
 
         long webSocketStarted = System.nanoTime();
@@ -48,8 +58,12 @@ public class TargetIngestionService {
         long webSocketMs = elapsedMillis(webSocketStarted);
 
         long totalMs = elapsedMillis(totalStarted);
+        long completedAt = System.currentTimeMillis();
+        long endToEndMs = Math.max(0, completedAt - batchEvent.timestamp());
         ingestionMetricsService.recordBatch(
                 batchEvent.timestamp(),
+                receivedAt,
+                completedAt,
                 targetCount,
                 redisMs,
                 historyMs,
@@ -58,19 +72,26 @@ public class TargetIngestionService {
         );
 
         long targetCycleMs = appProperties.getPerformanceTargetCycleMs();
-        if (totalMs > targetCycleMs) {
+        if (endToEndMs > targetCycleMs) {
             log.warn(
-                    "Target update batch exceeded target cycle: timestamp={}, targets={}, targetMs={}, totalMs={}, redisMs={}, clickHouseMs={}, webSocketMs={}",
+                    "Target update batch exceeded target cycle: timestamp={}, targets={}, targetMs={}, endToEndMs={}, backendMs={}, redisMs={}, clickHouseMs={}, webSocketMs={}",
                     batchEvent.timestamp(),
                     targetCount,
                     targetCycleMs,
+                    endToEndMs,
                     totalMs,
                     redisMs,
                     historyMs,
                     webSocketMs
             );
         } else {
-            log.info("Received target update batch: timestamp={}, targets={}, totalMs={}", batchEvent.timestamp(), targetCount, totalMs);
+            log.info(
+                    "Received target update batch: timestamp={}, targets={}, endToEndMs={}, backendMs={}",
+                    batchEvent.timestamp(),
+                    targetCount,
+                    endToEndMs,
+                    totalMs
+            );
         }
         return targetCount;
     }
